@@ -25,25 +25,24 @@ import (
 // logbookCmd represents the logbook command
 var logbookCmd = &cobra.Command{
 	Use:   "logbook",
-	Short: "Allows you to create a log type file",
+	Short: "Create a new logbook entry",
 	Long: `Create a new logbook entry with current date, for example:
 	
-notes-cli logbook -c "intern"
+notes-cli logbook --category "intern"
 	
 This command will create a new logbook entry if it doesn't exist
 for the category named "intern"`,
 	Run: func(cmd *cobra.Command, args []string) {
+		dt := time.Now()
 		home := utils.GoEnvVariable("HOME_NOTES_CLI")
 
 		utils.CreateDirIfNotExist(category)
 
-		dt := time.Now()
 		filename := dt.Format("01-02-2006") + ".md"
-		file := utils.CreateFileIfNotExist(home, category+"/"+filename, dt.Format("01-02-2006"))
+		file := utils.CreateFileIfNotExist(home, category+"/"+filename)
 		file.Close()
 
 		utils.OpenEditor(home + "/" + category + "/" + filename)
-
 	},
 }
 

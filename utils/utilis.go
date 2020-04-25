@@ -1,13 +1,13 @@
 package utils
 
 import (
-	"bytes"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 
 	"github.com/pkg/errors"
+	"github.com/quelhasu/notes-cli/parser"
 	"github.com/spf13/viper"
 )
 
@@ -61,14 +61,14 @@ func CreateDirIfNotExist(dir string) {
 }
 
 // CreateFileIfNotExist create file and append the template if not exist
-func CreateFileIfNotExist(config string, filename string, date string) (f *os.File) {
+func CreateFileIfNotExist(homepath string, filename string) (f *os.File) {
 	exist, err := Exists(filename)
 	f = nil
 	if exist {
 		f, err = os.OpenFile(filename, os.O_RDONLY, 0755)
 	} else {
 		f, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
-		AppendTemplate(config, filename, date)
+		AppendTemplate(homepath, filename)
 	}
 
 	if err != nil {
@@ -79,12 +79,10 @@ func CreateFileIfNotExist(config string, filename string, date string) (f *os.Fi
 }
 
 // AppendTemplate append template to a given filename and date
-func AppendTemplate(config string, filename string, date string) {
-	in, err := ioutil.ReadFile(config + "/template.md")
-	// 	str := `# Notes %DATE%
-	// > This is your notes for the date %DATE%`
+func AppendTemplate(homepath string, filename string) {
+	in, err := ioutil.ReadFile(homepath + "/template.md")
 
-	in = bytes.ReplaceAll(in, []byte("%DATE%"), []byte(date))
+	in = parser.Parse(in)
 	if err != nil {
 		errors.Wrap(err, "Cannot find the template, please create template.md in the $HOME_NOTES_CLI dir")
 	}
