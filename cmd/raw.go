@@ -16,30 +16,44 @@ limitations under the License.
 package cmd
 
 import (
+	"errors"
+	"strings"
 	"time"
 
 	"github.com/quelhasu/notes-cli/utils"
+
 	"github.com/spf13/cobra"
 )
 
-// logbookCmd represents the logbook command
-var logbookCmd = &cobra.Command{
-	Use:   "logbook",
-	Short: "Create a new logbook entry",
-	Long: `Create a new logbook entry with current date, for example:
-	
-notes-cli logbook --category "intern"
-	
-This command will create a new logbook entry if it doesn't exist
-for the category named "intern"`,
+// rawCmd represents the raw command
+var rawCmd = &cobra.Command{
+	Use:   "raw <name>",
+	Short: "Create new raw note entry",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
+	Args: func(cmd *cobra.Command, args []string) error {
+		if len(args) < 1 {
+			return errors.New("requires a name argument")
+		}
+		return nil
+		// if utils.IsString(args[0]) {
+		// 	return nil
+		// }
+		// return fmt.Errorf("please provide valid string : %s", args[0])
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		dt := time.Now()
 		home := utils.GoEnvVariable("HOME_NOTES_CLI")
 
 		utils.CreateDirIfNotExist(category)
 
-		filename := dt.Format("01-02-2006") + ".md"
-		file := utils.CreateFileIfNotExist(home, category+"/"+filename, "Log")
+		dt := time.Now()
+		filename := "raw_" + dt.Format("01-02-06") + "_" + strings.ReplaceAll(args[0], " ", "-") + ".md"
+
+		file := utils.CreateFileIfNotExist(home, category+"/"+filename, args[0])
 		file.Close()
 
 		utils.OpenEditor(home + "/" + category + "/" + filename)
@@ -47,15 +61,15 @@ for the category named "intern"`,
 }
 
 func init() {
-	rootCmd.AddCommand(logbookCmd)
+	rootCmd.AddCommand(rawCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// logbookCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// rawCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// logbookCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// rawCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

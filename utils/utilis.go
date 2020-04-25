@@ -61,14 +61,14 @@ func CreateDirIfNotExist(dir string) {
 }
 
 // CreateFileIfNotExist create file and append the template if not exist
-func CreateFileIfNotExist(homepath string, filename string) (f *os.File) {
+func CreateFileIfNotExist(homepath string, filename string, info string) (f *os.File) {
 	exist, err := Exists(filename)
 	f = nil
 	if exist {
 		f, err = os.OpenFile(filename, os.O_RDONLY, 0755)
 	} else {
 		f, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0755)
-		AppendTemplate(homepath, filename)
+		AppendTemplate(homepath, filename, info)
 	}
 
 	if err != nil {
@@ -79,10 +79,10 @@ func CreateFileIfNotExist(homepath string, filename string) (f *os.File) {
 }
 
 // AppendTemplate append template to a given filename and date
-func AppendTemplate(homepath string, filename string) {
+func AppendTemplate(homepath string, filename string, info string) {
 	in, err := ioutil.ReadFile(homepath + "/template.md")
 
-	in = parser.Parse(in)
+	in = parser.Parse(in, info)
 	if err != nil {
 		errors.Wrap(err, "Cannot find the template, please create template.md in the $HOME_NOTES_CLI dir")
 	}
